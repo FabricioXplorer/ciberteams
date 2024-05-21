@@ -1,24 +1,29 @@
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import PaginaInicio from './pagina de inicio/PaginaInicio';
+import FormularioRegistroAlumno from './formulario alumno/FormularioRegistroAlumno';
+import LoginAdmin from './formulario login/LoginAdmin';
+import FormularioPreInscripcion from './dashboard pre inscripcion/FormularioPreInscripcion';
+import GradoSeccion from './Grado seccion/GradoSeccion';
+import FormularioRegistroProfesor from './preformulario profesor/FormularioRegistroProfesor';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <div className="App">
+        <Routes>
+          <Route path="/" element={<PaginaInicio/>} />
+          <Route path="/paginainicio" element={<PaginaInicio/>} />
+          <Route path="/formularioregistro" element={<FormularioRegistroAlumno/>} />
+          <Route path="/formularioprofesor" element={<FormularioRegistroProfesor/>} />
+          <Route path="/formulariopreinscripcion" element={<FormularioPreInscripcion/>} />
+          <Route path="/loginadmin" element={<LoginAdmin/>} />
+          <Route path="/gradoseccion" element={<GradoSeccion/>} />
+          
+          
+          
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
