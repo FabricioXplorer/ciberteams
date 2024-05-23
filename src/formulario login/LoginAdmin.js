@@ -45,25 +45,31 @@ const LoginForm = () => {
   };
 
   return (
-    <div>
-      <h1>Formulario de Inicio de Sesión</h1>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="loginusuario"
-          placeholder="Usuario"
-          value={formData.loginusuario}
-          onChange={handleChange}
-        />
-        <input
-          type="password"
-          name="loginclave"
-          placeholder="Clave"
-          value={formData.loginclave}
-          onChange={handleChange}
-        />
-        <button type="submit">Iniciar Sesión</button>
-      </form>
+<div className="min-h-screen flex items-center justify-center bg-gray-100">
+      <div className="max-w-md w-full bg-lime-300 p-8 border border-gray-300 rounded-lg shadow-lg">
+        <h1 className="text-2xl font-bold text-center mb-6">Formulario de Inicio de Sesión</h1>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <input
+            type="text"
+            name="loginusuario"
+            placeholder="Usuario"
+            value={formData.loginusuario}
+            onChange={handleChange}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+          <input
+            type="password"
+            name="loginclave"
+            placeholder="Clave"
+            value={formData.loginclave}
+            onChange={handleChange}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+          <button type="submit" className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded focus:outline-none focus:shadow-outline">
+            Iniciar Sesión
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
