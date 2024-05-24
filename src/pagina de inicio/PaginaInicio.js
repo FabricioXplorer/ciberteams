@@ -4,31 +4,31 @@ import { Link } from 'react-router-dom';
 
 function FormularioAlumno() {
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col">
-      <nav className="bg-green-500 text-white p-4 shadow-lg">
-        {/* <img src={logo} alt="Logo" className="h-10 w-10" /> */}
-        <h2 className='text-xl font-bold'>CiberKids</h2>
-        <ul className='flex justify-around mt-4'>
-          <li>
-            <Link to="/formularioregistro" className="hover:text-gray-200">Registro estudiante nuevo</Link>
-          </li>
-          <li>
-            <Link to="/formularioprofesor" className="hover:text-gray-200">Registro profesor nuevo</Link>
-          </li>
-          <li>
-            <Link to="/formulariopreinscripcion" className="hover:text-gray-200">Pre inscripción</Link>
-          </li>
-          <li>
-            <Link to="/gradoseccion" className="hover:text-gray-200">Grados</Link>
-          </li>
-          <li>
-            <Link to="/loginadmin" className="hover:text-gray-200">Inicio de Sesión</Link>
-          </li>
-        </ul>
-      </nav>
-      <div className="flex-grow p-6">
-      </div>
+    <div className="min-h-screen flex flex-row bg-gray-100">
+    <nav className="bg-green-500 w-64 text-white min-h-screen p-5">
+      <h2 className='text-xl font-bold mb-10'>CiberKids</h2>
+      <ul className='flex flex-col'>
+        <li className='mb-4'>
+          <Link to="/formularioregistro" className="hover:bg-gray-700 p-2 rounded">Registro estudiante nuevo</Link>
+        </li>
+        <li className='mb-4'>
+          <Link to="/formularioprofesor" className="hover:bg-gray-700 p-2 rounded">Registro profesor nuevo</Link>
+        </li>
+        <li className='mb-4'>
+          <Link to="/formulariopreinscripcion" className="hover:bg-gray-700 p-2 rounded">Pre inscripción</Link>
+        </li>
+        <li className='mb-4'>
+          <Link to="/gradoseccion" className="hover:bg-gray-700 p-2 rounded">Grados</Link>
+        </li>
+        <li className='mb-4'>
+          <Link to="/loginadmin" className="hover:bg-gray-700 p-2 rounded">Inicio de Sesión</Link>
+        </li>
+      </ul>
+    </nav>
+    <div className="flex-grow p-6">
+      {/* Aquí iría el contenido principal de la página */}
     </div>
+  </div>
   );
 }
 

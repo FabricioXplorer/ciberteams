@@ -1,9 +1,9 @@
-// src/App.js
 import React, { useState } from 'react';
 import axios from 'axios';
 
 const App = () => {
   const [formData, setFormData] = useState({
+    // Inicializa todos tus campos aquí como antes
     imagen_alumno: '',
     tipo_sangre: '',
     lugar_familia: '',
@@ -36,29 +36,20 @@ const App = () => {
     });
   };
 
+  const handleFocus = (e) => {
+    e.target.type = 'date';
+  };
+
+  const handleBlur = (e) => {
+    if (e.target.value === '') e.target.type = 'text';
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       // Enviar datos del alumno
-      const alumnoResponse = await axios.post('http://localhost:5000/api/alumno', {
-        imagen_alumno: formData.imagen_alumno,
-        tipo_sangre: formData.tipo_sangre,
-        lugar_familia: formData.lugar_familia,
-        cod_rude: formData.cod_rude,
-        nro_hermanos: formData.nro_hermanos,
-        nombres: formData.nombres,
-        apellidos: formData.apellidos,
-        documentodeidentidad: formData.documentodeidentidad,
-        fechanacimiento: formData.fechanacimiento,
-        sexo: formData.sexo,
-        ciudad: formData.ciudad,
-        direccion: formData.direccion,
-        estado: formData.estado,
-        fecharegistro: formData.fecharegistro,
-        idturno: formData.idturno
-      });
-
-      const idalumno = alumnoResponse.data.id; // Asumiendo que el ID del alumno es devuelto en la respuesta
+      const alumnoResponse = await axios.post('http://localhost:5000/api/alumno', formData);
+      const idalumno = alumnoResponse.data.id;
 
       // Enviar datos de los tutores
       await axios.post('http://localhost:5000/api/tutores', {
@@ -82,28 +73,29 @@ const App = () => {
 
   return (
     <div className="App max-w-4xl mx-auto p-8">
-    <h1 className="text-3xl font-bold text-center mb-6">Formulario de Registro</h1>
-    <form onSubmit={handleSubmit} className="bg-lime-300 shadow-lg rounded-lg p-6 space-y-4">
-      <h2 className="text-xl font-semibold">Información del Alumno</h2>
-      <div className="space-y-3">
-        <input type="file" name="imagen_alumno" onChange={handleChange} className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100"/>
-        {/* Repite el patrón abajo para otros campos del formulario */}
-        {['tipo_sangre', 'lugar_familia', 'cod_rude', 'nro_hermanos', 'nombres', 'apellidos', 'documentodeidentidad', 'sexo', 'ciudad', 'direccion', 'estado', 'fecharegistro', 'idturno'].map((item) => (
-          <input type="text" name={item} placeholder={item.split('_').join(' ')} onChange={handleChange} className="w-full py-2 px-3 border rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"/>
-        ))}
-        <input type="date" name="fechanacimiento" onChange={handleChange} className="w-full py-2 px-3 border rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"/>
-      </div>
-      
-      <h2 className="text-xl font-semibold">Información de los Tutores</h2>
-      <div className="space-y-3">
-        {['nombre_madre', 'ci_madre', 'telefono_madre', 'trabajo_madre', 'nombre_padre', 'ci_padre', 'telefono_padre', 'trabajo_padre'].map((item) => (
-          <input type="text" name={item} placeholder={item.split('_').join(' ')} onChange={handleChange} className="w-full py-2 px-3 border rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"/>
-        ))}
-      </div>
+      <h1 className="text-3xl font-bold text-center mb-6">Formulario de Registro</h1>
+      <form onSubmit={handleSubmit} className="bg-lime-300 shadow-lg rounded-lg p-6 space-y-4">
+        <h2 className="text-xl font-semibold">Información del Alumno</h2>
+        <div className="space-y-3">
+          <input type="file" name="imagen_alumno" onChange={handleChange} className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100"/>
+          {/* Repite el patrón abajo para otros campos del formulario */}
+          {['tipo_sangre', 'lugar_familia', 'cod_rude', 'nro_hermanos', 'nombres', 'apellidos', 'documentodeidentidad', 'sexo', 'ciudad', 'direccion'].map((item) => (
+            <input type="text" name={item} placeholder={item.split('_').join(' ')} onChange={handleChange} className="w-full py-2 px-3 border rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"/>
+          ))}
+          <input type="text" name="fechanacimiento" placeholder="Fecha de nacimiento" onFocus={handleFocus} onBlur={handleBlur} onChange={handleChange} className="w-full py-2 px-3 border rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"/>
+          <input type="text" name="fecharegistro" placeholder="Fecha de registro" onFocus={handleFocus} onBlur={handleBlur} onChange={handleChange} className="w-full py-2 px-3 border rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"/>
+        </div>
+        
+        <h2 className="text-xl font-semibold">Información de los Tutores</h2>
+        <div className="space-y-3">
+          {['nombre_madre', 'ci_madre', 'telefono_madre', 'trabajo_madre', 'nombre_padre', 'ci_padre', 'telefono_padre', 'trabajo_padre'].map((item) => (
+            <input type="text" name={item} placeholder={item.split('_').join(' ')} onChange={handleChange} className="w-full py-2 px-3 border rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"/>
+          ))}
+        </div>
 
-      <button type="submit" className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Registrar</button>
-    </form>
-  </div>
+        <button type="submit" className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Registrar</button>
+      </form>
+    </div>
   );
 };
 
