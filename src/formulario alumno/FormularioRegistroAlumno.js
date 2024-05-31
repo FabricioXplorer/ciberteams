@@ -1,9 +1,98 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const App = () => {
+const Modal = ({ isOpen, onClose, onSubmit, formData, handleChange, isEditMode, viewMode }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="relative w-full max-w-lg p-8 bg-white rounded-lg shadow-md">
+        <button
+          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+          onClick={onClose}
+        >
+          &times;
+        </button>
+        <h2 className="text-2xl font-bold mb-4">{viewMode ? 'Detalles' : isEditMode ? 'Modificar' : 'Registrar'}</h2>
+        <form onSubmit={onSubmit} className="space-y-4">
+          {Object.keys(formData).map((key) => (
+            <input
+              key={key}
+              type={key === 'fechanacimiento' || key === 'fecharegistro' ? 'date' : 'text'}
+              name={key}
+              placeholder={key.replace(/_/g, ' ')}
+              value={formData[key]}
+              onChange={handleChange}
+              className="w-full p-2 border border-gray-300 rounded-md"
+              disabled={viewMode}
+            />
+          ))}
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={onClose}
+              className="bg-gray-300 text-black px-4 py-2 rounded-md mr-2 hover:bg-gray-400 transition"
+            >
+              Cancelar
+            </button>
+            {!viewMode && (
+              <button
+                type="submit"
+                className={`bg-${isEditMode ? 'yellow' : 'blue'}-600 text-white px-4 py-2 rounded-md hover:bg-${isEditMode ? 'yellow' : 'blue'}-700 transition`}
+              >
+                {isEditMode ? 'Modificar' : 'Registrar'}
+              </button>
+            )}
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+const Table = ({ data, handleEdit, handleViewDetails, handleDelete }) => (
+  <table className="min-w-full bg-white rounded-md shadow-md">
+    <thead>
+      <tr>
+        {['Nombres', 'Apellidos', 'Documento de Identidad', 'Acciones'].map((header) => (
+          <th key={header} className="py-2 px-4 border-b">{header}</th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {data.map((item) => (
+        <tr key={item.id}>
+          {['nombres', 'apellidos', 'documentodeidentidad'].map((field) => (
+            <td key={field} className="py-2 px-4 border-b">{item[field]}</td>
+          ))}
+          <td className="py-2 px-4 border-b flex space-x-2">
+            <button
+              onClick={() => handleViewDetails(item)}
+              className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-700 transition"
+            >
+              Más Detalles
+            </button>
+            <button
+              onClick={() => handleEdit(item)}
+              className="bg-yellow-600 text-white px-4 py-2 rounded-md hover:bg-yellow-700 transition"
+            >
+              Modificar
+            </button>
+            <button
+              onClick={() => handleDelete(item.id)}
+              className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-700 transition"
+            >
+              Eliminar
+            </button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+);
+
+const FormularioAlumno = () => {
   const [formData, setFormData] = useState({
-    // Inicializa todos tus campos aquí como antes
     imagen_alumno: '',
     tipo_sangre: '',
     lugar_familia: '',
@@ -18,16 +107,29 @@ const App = () => {
     direccion: '',
     estado: '',
     fecharegistro: '',
-    idturno: '',
-    nombre_madre: '',
-    ci_madre: '',
-    telefono_madre: '',
-    trabajo_madre: '',
-    nombre_padre: '',
-    ci_padre: '',
-    telefono_padre: '',
-    trabajo_padre: ''
   });
+
+  const [searchTerm, setSearchTerm] = useState('');
+  const [data, setData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(5);
+  const [itemsToShow, setItemsToShow] = useState(itemsPerPage);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [viewMode, setViewMode] = useState(false);
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const result = await axios.get('http://localhost:5000/api/alumno');
+      setData(result.data);
+    } catch (error) {
+      console.error('Error al obtener los datos:', error);
+    }
+  };
 
   const handleChange = (e) => {
     setFormData({
@@ -36,67 +138,147 @@ const App = () => {
     });
   };
 
-  const handleFocus = (e) => {
-    e.target.type = 'date';
-  };
-
-  const handleBlur = (e) => {
-    if (e.target.value === '') e.target.type = 'text';
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Enviar datos del alumno
-      const alumnoResponse = await axios.post('http://localhost:5000/api/alumno', formData);
-      const idalumno = alumnoResponse.data.id;
-
-      // Enviar datos de los tutores
-      await axios.post('http://localhost:5000/api/tutores', {
-        nombre_madre: formData.nombre_madre,
-        ci_madre: formData.ci_madre,
-        telefono_madre: formData.telefono_madre,
-        trabajo_madre: formData.trabajo_madre,
-        nombre_padre: formData.nombre_padre,
-        ci_padre: formData.ci_padre,
-        telefono_padre: formData.telefono_padre,
-        trabajo_padre: formData.trabajo_padre,
-        idalumno: idalumno
-      });
-
-      alert('Registro exitoso');
+      if (editMode) {
+        await axios.put(`http://localhost:5000/api/alumno/${formData.id}`, formData);
+        alert('Modificación exitosa');
+      } else {
+        await axios.post('http://localhost:5000/api/alumno', formData);
+        alert('Registro exitoso');
+      }
+      fetchData();
+      resetForm();
     } catch (error) {
-      console.error('Error en el registro:', error);
-      alert('Error en el registro');
+      console.error('Error en el registro/modificación:', error);
+      alert('Error en el registro/modificación');
     }
   };
 
-  return (
-    <div className="App max-w-4xl mx-auto p-8">
-      <h1 className="text-3xl font-bold text-center mb-6">Formulario de Registro</h1>
-      <form onSubmit={handleSubmit} className="bg-lime-300 shadow-lg rounded-lg p-6 space-y-4">
-        <h2 className="text-xl font-semibold">Información del Alumno</h2>
-        <div className="space-y-3">
-          <input type="file" name="imagen_alumno" onChange={handleChange} className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100"/>
-          {/* Repite el patrón abajo para otros campos del formulario */}
-          {['tipo_sangre', 'lugar_familia', 'cod_rude', 'nro_hermanos', 'nombres', 'apellidos', 'documentodeidentidad', 'sexo', 'ciudad', 'direccion'].map((item) => (
-            <input type="text" name={item} placeholder={item.split('_').join(' ')} onChange={handleChange} className="w-full py-2 px-3 border rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"/>
-          ))}
-          <input type="text" name="fechanacimiento" placeholder="Fecha de nacimiento" onFocus={handleFocus} onBlur={handleBlur} onChange={handleChange} className="w-full py-2 px-3 border rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"/>
-          <input type="text" name="fecharegistro" placeholder="Fecha de registro" onFocus={handleFocus} onBlur={handleBlur} onChange={handleChange} className="w-full py-2 px-3 border rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"/>
-        </div>
-        
-        <h2 className="text-xl font-semibold">Información de los Tutores</h2>
-        <div className="space-y-3">
-          {['nombre_madre', 'ci_madre', 'telefono_madre', 'trabajo_madre', 'nombre_padre', 'ci_padre', 'telefono_padre', 'trabajo_padre'].map((item) => (
-            <input type="text" name={item} placeholder={item.split('_').join(' ')} onChange={handleChange} className="w-full py-2 px-3 border rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500"/>
-          ))}
-        </div>
+  const handleDelete = async (id) => {
+    try {
+      await axios.delete(`http://localhost:5000/api/alumno/${id}`);
+      alert('Registro eliminado');
+      fetchData();
+    } catch (error) {
+      console.error('Error al eliminar el registro:', error);
+      alert('Error al eliminar el registro');
+    }
+  };
 
-        <button type="submit" className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Registrar</button>
-      </form>
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const handleEdit = (item) => {
+    setFormData({ id: item.id, ...item });
+    setEditMode(true);
+    setModalOpen(true);
+  };
+
+  const handleViewDetails = (item) => {
+    setFormData({ id: item.id, ...item });
+    setViewMode(true);
+    setModalOpen(true);
+  };
+
+  const resetForm = () => {
+    setFormData({
+      imagen_alumno: '',
+      tipo_sangre: '',
+      lugar_familia: '',
+      cod_rude: '',
+      nro_hermanos: '',
+      nombres: '',
+      apellidos: '',
+      documentodeidentidad: '',
+      fechanacimiento: '',
+      sexo: '',
+      ciudad: '',
+      direccion: '',
+      estado: '',
+      fecharegistro: '',
+    });
+    setEditMode(false);
+    setModalOpen(false);
+    setViewMode(false);
+  };
+
+  const filteredData = data.filter(item => {
+    return (
+      item.nombres.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.apellidos.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.documentodeidentidad.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
+
+  const indexOfLastItem = currentPage * itemsToShow;
+  const indexOfFirstItem = indexOfLastItem - itemsToShow;
+  const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  const handleShowMore = () => {
+    setItemsToShow(prevItemsToShow => prevItemsToShow + itemsPerPage);
+  };
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
+      <div className="w-full max-w-6xl p-8 bg-white rounded-lg shadow-md">
+        <div className="flex justify-between mb-4">
+          <input
+            type="text"
+            placeholder="Buscar..."
+            value={searchTerm}
+            onChange={handleSearch}
+            className="p-2 border border-gray-300 rounded-md"
+          />
+          <button
+            onClick={() => {
+              resetForm();
+              setModalOpen(true);
+            }}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
+          >
+            Registrar
+          </button>
+        </div>
+        <Table data={currentItems} handleEdit={handleEdit} handleViewDetails={handleViewDetails} handleDelete={handleDelete} />
+        <div className="flex justify-center mt-4">
+          {[...Array(Math.ceil(filteredData.length / itemsToShow)).keys()].map((number) => (
+            <button
+              key={number}
+              onClick={() => paginate(number + 1)}
+              className={`px-4 py-2 mx-1 rounded-md ${currentPage === number + 1 ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
+            >
+              {number + 1}
+            </button>
+          ))}
+        </div>
+        {itemsToShow < filteredData.length && (
+          <div className="flex justify-center mt-4">
+            <button
+              onClick={handleShowMore}
+              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
+            >
+              Mostrar más
+            </button>
+          </div>
+        )}
+      </div>
+
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onSubmit={handleSubmit}
+        formData={formData}
+        handleChange={handleChange}
+        isEditMode={editMode}
+        viewMode={viewMode}
+      />
     </div>
   );
 };
 
-export default App;
+export default FormularioAlumno;
