@@ -1,25 +1,41 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useContext } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../navbar contex/AuthContext'; // Asegúrate de importar correctamente el contexto
+import letra1 from '../imagenes/letra.png';
 
 function FormularioAlumno() {
+  const { isLoggedIn, setIsLoggedIn } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem('userToken'); // Elimina el token de autenticación
+    setIsLoggedIn(false); // Actualiza el estado de autenticación
+    navigate('/'); // Redirige al usuario a la página de inicio
+  };
   return (
+    
     <div className="min-h-screen flex flex-col bg-gray-100">
       <nav className="bg-blue-500 text-white p-5 flex justify-between items-center">
-        <h2 className="text-2xl font-bold mb-4">CiberKids</h2>
+      <Link to="https://ciberkids.com.bo/#/">
+      <img src={letra1} alt="CiberKids Logo" className="h-20 font-bold mb-2 animate-pulse"  />
+      </Link>
         <ul className="flex space-x-6 text-lg">
           <li>
-            <Link to="/formularioregistro" className="hover:bg-blue-700 p-2 rounded">Registro estudiante nuevo</Link>
+            <Link to="/formularioregistro" className="hover:bg-yellow-400 p-2 rounded transition duration-300 transform hover:scale-110">Registro estudiante nuevo</Link>
           </li>
           <li>
-            <Link to="/formularioprofesor" className="hover:bg-blue-700 p-2 rounded">Registro profesor nuevo</Link>
+            <Link to="/formularioprofesor" className="hover:bg-yellow-400 p-2 rounded transition duration-300 transform hover:scale-110">Registro profesor nuevo</Link>
           </li>
           <li>
-            <Link to="/formulariopreinscripcion" className="hover:bg-blue-700 p-2 rounded">Pre inscripción</Link>
+            <Link to="/formulariopreinscripcion" className="hover:bg-yellow-400 p-2 rounded transition duration-300 transform hover:scale-110">Pre inscripción</Link>
           </li>
           <li>
-            <Link to="/gradoseccion" className="hover:bg-blue-700 p-2 rounded">Grados</Link>
+            <Link to="/gradoseccion" className="hover:bg-yellow-400 p-2 rounded transition duration-300 transform hover:scale-110">Grados</Link>
           </li>
-          
+          <li>
+          <Link to="/dashboardpreinscripcion" className="hover:bg-yellow-400 p-2 rounded transition duration-300 transform hover:scale-110">Usuarios</Link>
+          </li>
+          <li><button onClick={handleLogout} className="hover:bg-yellow-400 p-2 rounded -mt-20 mr-10 ">Cerrar Sesión</button></li>
         </ul>
       </nav>
       <div className="flex-grow p-6">
